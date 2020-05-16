@@ -19,13 +19,13 @@ def bfunc(x, l, b0, b1, b2):
     return b0 + b1 * cos((pi*x)/l) + b2 * cos(2*(pi*x)/l)
 
 
-def integrate(h, fu):
+def integrate(h, fu): #Фунуция численного интегрирования
     res = (h/3)*(fu[0] + fu[len(fu) - 1])
     for i in range(1, len(fu) - 1, 2):
         res += (h/3)*(4*fu[i] + 2*fu[i + 1])
     return res
         
-def tridiagAlg(a, b, c, func, count):
+def tridiagAlg(a, b, c, func, count):#Метод прогонки
     A = []
     B = []
     res = [0] * count
@@ -100,7 +100,6 @@ while True:
     if event in ('Plot'):
         fig, ax = plt.subplots(figsize=(6, 4))
         ax.grid()
-#        ax.plot([0], [0], 'b')
         fig.savefig('NM2plot.png')
         progress_bar = window['progressbar']
         window['NM2plot'].update(r'NM2plot.png')
@@ -124,13 +123,16 @@ while True:
         slices2 = [[]]
         count_N = int(_len/delta_x)
         count_T = int(time/delta_t)
+        prbar_step = 1000/count_T
         
+        # Вычисление значений функции и заполнение первого слоя сетки
         for i in range(0, count_N):
             func_val.append(func(i*delta_x, _len, f1, f2))
             bfunc_val.append(bfunc(i*delta_x, _len, b0, b1, b2))
             slices1[0].append(func_val[i])
             slices2[0].append(func_val[i])
 
+        # Заполнение матрицы коэффициентов для метода прогонки
         coeff_a = [0.0]
         coeff_b = [1.0]
         coeff_c = [-1.0]
@@ -142,28 +144,32 @@ while True:
         coeff_b.append(1.0)
         coeff_c.append(0.0)
         
-        prbar_step = 1000/count_T
-        
+        #Вычисление последующих слоев сетки
         for i in range(1, count_T):
             I = integrate(delta_x, bfunc_val)
             fu = [0]
             fu2 = [0]
             slices1.append([])
             slices2.append([])
+            
+            #Вычисляем правую часть системы для прогонки
             for j in range(1, count_N - 1):
                 fu.append(-slices1[i - 1][j] * ((bfunc_val[j] - I) * delta_t * delta_t  + 1.0))
                 fu2.append(-slices2[i - 1][j] * (bfunc_val[j] * delta_t * delta_t + 1.0))
             fu.append(0)
             fu2.append(0)
         
+            #Метод прогонки для системы из B
             res = tridiagAlg(coeff_a, coeff_b, coeff_c, fu, count_N)
             for j in range(0, count_N):
                 slices1[i].append(res[j])
-                
+            
+            #Метод прогонки для системы из A
             res2 = tridiagAlg(coeff_a, coeff_b, coeff_c, fu2, count_N)
             for j in range(0, count_N):
                 slices2[i].append(res2[j])
             progress_bar.UpdateBar(i * prbar_step)
+                
         I = integrate(delta_x, slices2[count_T - 1])
         
         resB = []
@@ -178,7 +184,6 @@ while True:
             x_val.append(i * delta_x)
         
         ax.plot(x_val, func_val, 'b')
-#        ax.plot(x_val, resA, 'g')
         ax.plot(x_val, slices1[count_T - 1], 'r')
         fig.savefig('NM2plot.png')
         window['NM2plot'].update(r'NM2plot.png')
@@ -186,5 +191,3 @@ while True:
         flag = 0
         
 window.close()
-
-    
