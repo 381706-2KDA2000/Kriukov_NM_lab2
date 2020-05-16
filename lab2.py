@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import PySimpleGUI as sg
 
 import matplotlib.pyplot as plt
@@ -13,7 +15,8 @@ def bfunc(x, l, b0, b1, b2):
     return b0 + b1 * cos((pi*x)/l) + b2 * cos(2*(pi*x)/l)
 
 
-def integrate(h, fu): # Фукция численного интегрирования
+
+def integrate(h, fu): #Функция численного интегрирования
     res = (h/3)*(fu[0] + fu[len(fu) - 1])
     for i in range(1, len(fu) - 1, 2):
         res += (h/3)*(4*fu[i] + 2*fu[i + 1])
