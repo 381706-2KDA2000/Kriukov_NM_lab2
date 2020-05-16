@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Wed May 13 13:04:59 2020
-
-@author: dimentor
-"""
 import PySimpleGUI as sg
 
 import matplotlib.pyplot as plt
